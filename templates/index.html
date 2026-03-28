@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космический кинозал | Рекомендации по настроению</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Космические элементы -->
+    <div class="stars" id="stars"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="moon" onclick="showMoonMessage()"></div>
+    <div class="planet planet-1"></div>
+    <div class="planet planet-2"></div>
+    <div class="planet planet-3"></div>
+    <div class="ring-1 orbit-ring"></div>
+    <div class="ring-2 orbit-ring"></div>
+
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="logo">
+            <span>🌙</span> КОСМИЧЕСКИЙ КИНОЗАЛ
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Главная</a></li>
+            <li><a href="#recommend">Рекомендации</a></li>
+        </ul>
+    </nav>
+
+    <!-- Главный контент -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>🎬 КИНО ПОД ЛУНОЙ 🌙</h1>
+                <p>Расскажи о своём настроении, и звёзды подскажут идеальный фильм для просмотра</p>
+
+                <div class="moon-phase">
+                    <div class="phase">🌑 Новолуние</div>
+                    <div class="phase">🌓 Первая четверть</div>
+                    <div class="phase">🌕 Полнолуние</div>
+                    <div class="phase">🌗 Последняя четверть</div>
+                </div>
+
+                <form method="POST" action="/" class="mood-form" id="moodForm">
+                    <div class="form-group">
+                        <textarea
+                            name="message"
+                            placeholder="✍️ Напиши, что ты чувствуешь...&#10;Например: «Мне грустно, хочу чего-то доброго» или «Я полон энергии, нужен драйвовый фильм»"
+                            rows="4"
+                            required
+                        >{{ user_text if user_text else '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        🌟 ПОЛУЧИТЬ РЕКОМЕНДАЦИЮ 🌟
+                    </button>
+                </form>
+
+                <!-- Результат -->
+                {% if recommendation %}
+                <div class="result-card" id="resultCard">
+                    <div class="result-title">
+                        <span>🎭</span> ЛУННЫЙ ОРАКУЛ ГОВОРИТ:
+                    </div>
+                    <div class="result-text">
+                        {{ recommendation }}
+                    </div>
+                    {% if user_text %}
+                    <div class="user-input">
+                        <span>📝 Твоё настроение:</span> "{{ user_text[:100] }}{% if user_text|length > 100 %}...{% endif %}"
+                    </div>
+                    {% endif %}
+                    <div class="mood-badge">
+                        🌙 Рекомендация создана под светом луны
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>🌕 Космический кинозал | Фильмы по настроению 🌕</p>
+        <p>✨ Сила луны и звёзд помогает найти идеальный фильм ✨</p>
+    </footer>
+
+    <script>
+        // Создание звёздного неба
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 300;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
+                star.style.setProperty('--opacity', Math.random() * 0.7 + 0.3);
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Анимация загрузки
+        document.getElementById('moodForm')?.addEventListener('submit', function(e) {
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="cosmic-loader"></div> Обращаюсь к звёздам...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Форма отправится, но если что-то пойдёт не так - восстановим кнопку
+                // Это нужно, потому что форма отправляется сразу
+            }, 100);
+
+            // Восстановим кнопку, если форма не отправилась (ошибка валидации)
+            setTimeout(() => {
+                if (btn.disabled) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }, 3000);
+        });
+
+        // Сообщение при клике на луну
+        function showMoonMessage() {
+            const messages = [
+                "🌕 Луна шепчет: 'Хорошего просмотра!'",
+                "✨ Звёзды говорят, что сегодня идеальный вечер для кино!",
+                "🌙 Луна улыбается твоему выбору фильма",
+                "⭐ Космическая энергия поможет найти лучший фильм"
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+            // Создаём временное уведомление
+            const toast = document.createElement('div');
+            toast.textContent = randomMsg;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(10, 15, 35, 0.9);
+                backdrop-filter: blur(10px);
+                color: #ffd966;
+                padding: 12px 24px;
+                border-radius: 50px;
+                border: 1px solid rgba(255, 217, 102, 0.5);
+                z-index: 1000;
+                font-weight: 500;
+                animation: fadeInUp 0.3s ease;
+                white-space: nowrap;
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Запуск создания звёзд
+        createStars();
+
+        // Добавляем плавное появление результата
+        if (document.getElementById('resultCard')) {
+            const resultCard = document.getElementById('resultCard');
+            resultCard.style.animation = 'fadeInUp 0.6s ease-out';
+        }
+
+        // Параллакс эффект для луны (небольшой)
+        document.addEventListener('mousemove', function(e) {
+            const moon = document.querySelector('.moon');
+            if (moon) {
+                const mouseX = e.clientX / window.innerWidth;
+                const mouseY = e.clientY / window.innerHeight;
+                const moveX = (mouseX - 0.5) * 10;
+                const moveY = (mouseY - 0.5) * 10;
+                moon.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+
+        // Восстанавливаем кнопку после загрузки страницы (на случай если была ошибка)
+        window.addEventListener('load', function() {
+            const btn = document.getElementById('submitBtn');
+            if (btn) {
+                btn.innerHTML = '🌟 ПОЛУЧИТЬ РЕКОМЕНДАЦИЮ 🌟';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
